@@ -1,13 +1,80 @@
-import express from "express";
-const router = express.Router();
+import User from '../models/User.js';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { createError } from '../utils/error.js';
+import validator from 'email-validator';
+import cookie from 'cookie';
 
-import { updateUser, deleteUser, getUser, getAllUsers } from "../controller/users.js";
-import { verifyToken } from "../middlewares/verifyToken.js";
+export const register = async (req, res, next) => {
+    try {
+        const userEmail = req.body.email;
+        const isValid = validator.validate(userEmail);
+        const password = req.body.password;
+        const salt = bcrypt.genSaltSync(10);
+        const hash = bcrypt.hashSync(req.body.password, salt);
 
+        if (!isValid) {
+            return next(createError(400, "Please Enter Correct Email Address!!"));
+        }
 
-router.put("/:id", verifyToken, updateUser);
-router.delete("/:id", verifyToken, deleteUser);
-router.get("/:id", verifyToken, getUser);
-router.get("/", verifyToken, getAllUsers);
+        if (password.length < 6) {
+            return next(createError(400, "Please Enter Min 6 Character For Password!!"));
+        }
 
-export default router;
+        const newUser = new User({
+            ...req.body,
+            password: hash
+        });
+
+        newUser.save();
+
+        res.json({
+            hasError: false,
+            status: 200,
+            message: "User Created Successfully!!"
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const login = async (req, res, next) => {
+    try {
+        const user = await User.findOne({ username: req.body.username })
+
+        if (!user) {
+            return next(createError((400, "User Not Found!!")))
+        }
+
+        const isPasswordCorrect = bcrypt.compare(req.body.password, user.password);
+
+        if (!isPasswordCorrect) {
+            return next(createError(400, "Wrong Password And User Name!!"));
+        }
+
+        const token = jwt.sign({
+            id: user._id,
+            isAdmin: user.isAdmin
+        }, process.env.JWT)
+
+        const { password, isAdmin, ...otherDeatails } = user._doc;
+
+        res.cookie("Access-Token", token, {
+            httpOnly: true
+        });
+
+        res.cookie("User", user.username)
+
+        res.json({
+            hasError: false,
+            status: 200,
+            data: [{
+                ...otherDeatails,
+                "token": token
+            }]
+        });
+    } catch (error) {
+        next(error)
+    }
+};
