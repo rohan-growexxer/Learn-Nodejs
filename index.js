@@ -5,6 +5,9 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import authRoutes from './routes/auth.js';
 import userRoutes from './routes/user.js';
+import hotelRoutes from './routes/hotel.js';
+import swaggerJSDoc from "swagger-jsdoc";
+import swaggerUi from "swagger-ui-express";
 
 const app = express();
 dotenv.config();
@@ -18,6 +21,26 @@ const dbConnection = async () => {
         throw error;
     }
 }
+
+const options = {
+    definition: {
+        openapi: '3.0.0',
+        info: {
+            title: "Hotel Booking App Using NodeJs And MongoDB",
+            version: '1.0.0'
+        },
+        servers: [
+            {
+                url: 'http://localhost:3000/'
+            }
+        ]
+    },
+    apis: ['./routes/*.js']
+}
+
+const swaggerSpec = swaggerJSDoc(options);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 //Middlewares
 app.use(cors());
 app.use(cookieParser());
@@ -25,16 +48,17 @@ app.use(express.json());
 
 app.use('/api/v1/auth', userRoutes);
 app.use('/api/v1/users', authRoutes);
+app.use('/api/v1/hotel', hotelRoutes);
 
 app.use((err, req, res, next) => {
     const errorStatus = 500;
     const errorMessage = err.message || 'Something Went Wrong!!';
     return res.status(errorStatus).json({
-        success: false,
-        status: errorStatus,
+        hasError: false,
+        status: err.status || errorStatus,
         message: errorMessage,
         stack: err.stack
-    })
+    });
 });
 
 app.listen(3000, () => {

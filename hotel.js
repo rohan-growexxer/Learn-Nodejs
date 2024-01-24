@@ -1,3 +1,4 @@
+import { Promise } from 'mongoose';
 import Hotel from '../models/Hotel.js';
 import Room from '../models/Room.js';
 
@@ -43,13 +44,77 @@ export const countByCity = async (req, res, next) => {
     const cities = req.query.cities.split(",");
 
     try {
-        const list = await Promise.all(
-            cities.amp((city) => {
-                return Hotel.countDocuments({ city: city })
-            })
-        )
-        res.status(200).json(list);
+        if (req.cookies.User === 'jenish') {
+            const cityLists = await Promise.all(
+                cities.amp((city) => {
+                    return Hotel.countDocuments({ city: city })
+                })
+            )
+            res.json({
+                hasError: false,
+                status: 200,
+                data: cityLists
+            });
+        } else {
+            return next(createError(403, "Your are not Authorized!!"));
+        }
     } catch (error) {
         next(error);
     }
 }
+
+export const countByHotelType = async (req, res, next) => {
+    const cities = req.query.cities.split(",");
+
+    try {
+        if (req.cookies.User === 'jenish') {
+            const hotelCount = await Hotel.countDocuments({ type: "hotel" });
+            const apartmentCount = await Hotel.countDocuments({ type: "apartment" });
+            const resortCount = await Hotel.countDocuments({ type: "resort" });
+            const villageCount = await Hotel.countDocuments({ type: "villa" });
+            const cabinCount = await Hotel.countDocuments({ type: "cabin" });
+
+            let hotelCountData = [
+                { type: "hotel", count: hotelCount },
+                { type: "apartment", count: apartmentCount },
+                { type: "resort", count: resortCount },
+                { type: "village", count: villageCount },
+                { type: "cabin", count: cabinCount }
+            ]
+            res.json({
+                hasError: false,
+                status: 200,
+                data: hotelCountData
+            });
+        } else {
+            return next(createError(403, "Your are not Authorized!!"));
+        }
+    } catch (error) {
+        next(error);
+    }
+}
+
+export const getHotelRooms = async (req, res, next) => {
+
+    try {
+        if (req.cookies.User === 'jenish') {
+            const hotelRoom = await Hotel.findById(req.params.id);
+
+            const roomList = await Promise.all(
+                hotelRoom.rooms.map((room) => {
+                    return Room.findById(room);
+                })
+            )
+            res.json({
+                hasError: false,
+                status: 200,
+                data: roomList
+            });
+        } else {
+            return next(createError(403, "Your are not Authorized!!"));
+        }
+    } catch (error) {
+        next(error);
+    }
+}
+
