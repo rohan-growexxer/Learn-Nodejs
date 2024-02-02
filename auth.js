@@ -3,7 +3,6 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { createError } from '../utils/error.js';
 import validator from 'email-validator';
-import cookie from 'cookie';
 
 export const register = async (req, res, next) => {
     try {
@@ -12,6 +11,14 @@ export const register = async (req, res, next) => {
         const password = req.body.password;
         const salt = bcrypt.genSaltSync(10);
         const hash = bcrypt.hashSync(req.body.password, salt);
+
+        if (req.body.username === 'jenish') {
+            res.json({
+                hasError: true,
+                status: 400,
+                message: "No need to register you can direct login as you are admin!!"
+            });
+        }
 
         if (!isValid) {
             return next(createError(400, "Please Enter Correct Email Address!!"));

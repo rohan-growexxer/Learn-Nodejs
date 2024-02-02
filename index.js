@@ -6,6 +6,7 @@ import cors from "cors";
 import authRoutes from './routes/auth.js';
 import userRoutes from './routes/user.js';
 import hotelRoutes from './routes/hotel.js';
+import roomRoutes from './routes/room.js';
 import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 
@@ -49,6 +50,7 @@ app.use(express.json());
 app.use('/api/v1/auth', userRoutes);
 app.use('/api/v1/users', authRoutes);
 app.use('/api/v1/hotel', hotelRoutes);
+app.use('/api/v1/room', roomRoutes);
 
 app.use((err, req, res, next) => {
     const errorStatus = 500;
