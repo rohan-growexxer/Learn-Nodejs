@@ -48,20 +48,16 @@ export const getUser = async (req, res, next) => {
     try {
         const user = await User.findById(req.params.id);
 
-        if (user.username === 'jenish') {
-            const getSingleUserDetail = {
-                _id: user._id,
-                username: user.username,
-                country: user.country,
-            }
-            res.json({
-                hasError: false,
-                status: 200,
-                data: getSingleUserDetail
-            });
-        } else {
-            return next(createError(403, "Your are not Authorized!!"));
+        const getSingleUserDetail = {
+            _id: user._id,
+            username: user.username,
+            country: user.country,
         }
+        res.json({
+            hasError: false,
+            status: 200,
+            data: getSingleUserDetail
+        });
     } catch (error) {
         next(error);
     }

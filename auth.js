@@ -21,11 +21,11 @@ export const register = async (req, res, next) => {
         }
 
         if (!isValid) {
-            return next(createError(400, "Please Enter Correct Email Address!!"));
+            return next(createError(500, "Please Enter Correct Email Address!!"));
         }
 
         if (password.length < 6) {
-            return next(createError(400, "Please Enter Min 6 Character For Password!!"));
+            return next(createError(500, "Please Enter Min 6 Character For Password!!"));
         }
 
         const newUser = new User({
@@ -51,13 +51,13 @@ export const login = async (req, res, next) => {
         const user = await User.findOne({ username: req.body.username })
 
         if (!user) {
-            return next(createError((400, "User Not Found!!")))
+            return next(createError((500, "User Not Found!!")))
         }
 
         const isPasswordCorrect = bcrypt.compare(req.body.password, user.password);
 
         if (!isPasswordCorrect) {
-            return next(createError(400, "Wrong Password And User Name!!"));
+            return next(createError(500, "Wrong Password And User Name!!"));
         }
 
         const token = jwt.sign({
@@ -66,6 +66,14 @@ export const login = async (req, res, next) => {
         }, process.env.JWT)
 
         const { password, isAdmin, ...otherDeatails } = user._doc;
+
+        const loginUserDetail = {
+            id: otherDeatails._id,
+            username: otherDeatails.username,
+            email: otherDeatails.email,
+            country: otherDeatails.country,
+            phone: otherDeatails.phone
+        }
 
         res.cookie("Access-Token", token, {
             httpOnly: true
@@ -77,7 +85,7 @@ export const login = async (req, res, next) => {
             hasError: false,
             status: 200,
             data: [{
-                ...otherDeatails,
+                loginUserDetail,
                 "token": token
             }]
         });
