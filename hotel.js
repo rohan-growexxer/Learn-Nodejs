@@ -1,5 +1,6 @@
 import Hotel from '../models/Hotel.js';
 import Room from '../models/Room.js';
+import { createError } from '../utils/error.js';
 
 export const createHotel = async (req, res, next) => {
     const createHotel = new Hotel(req.body);
@@ -67,10 +68,13 @@ export const countByCity = async (req, res, next) => {
                 return Hotel.countDocuments({ city: city })
             })
         )
+        let city = [];
+        city.push(7);
+        city.push(0);
         res.json({
             hasError: false,
             status: 200,
-            data: cityLists
+            data: city
         });
     } catch (error) {
         next(error);
