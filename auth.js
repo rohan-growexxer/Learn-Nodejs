@@ -1,95 +1,80 @@
-import User from '../models/User.js';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import { createError } from '../utils/error.js';
-import validator from 'email-validator';
+import express from "express";
+const router = express.Router();
 
-export const register = async (req, res, next) => {
-    try {
-        const userEmail = req.body.email;
-        const isValid = validator.validate(userEmail);
-        const password = req.body.password;
-        const salt = bcrypt.genSaltSync(10);
-        const hash = bcrypt.hashSync(req.body.password, salt);
+import { updateUser, deleteUser, getUser, getAllUsers } from "../controller/users.js";
+import { verifyToken } from "../middlewares/verifyToken.js";
 
-        if (req.body.username === 'jenish') {
-            res.json({
-                hasError: true,
-                status: 400,
-                message: "No need to register you can direct login as you are admin!!"
-            });
-        }
+/**
+ * @swagger
+ * /api/v1/users/:{id}:
+ *   put:
+ *     summary: Update user.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: number
+ *                   example: 1
+ *     responses:
+ *       200:
+ *         description: Update Successfully!!
+ *       500:
+ *         description: Something Wrong Plz Try Again!!
+*/
+router.put("/:id", verifyToken, updateUser);
 
-        if (!isValid) {
-            return next(createError(500, "Please Enter Correct Email Address!!"));
-        }
+/**
+ * @swagger
+ * /api/v1/users/:{id}:
+ *   delete:
+ *     summary: Delete user.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: number
+ *                   example: 1
+ *     responses:
+ *       200:
+ *         description: Deleted Successfully!!
+ *       500:
+ *         description: Something Wrong Plz Try Again!!
+*/
+router.delete("/:id", verifyToken, deleteUser);
 
-        if (password.length < 6) {
-            return next(createError(500, "Please Enter Min 6 Character For Password!!"));
-        }
+/**
+ * @swagger
+ * /api/v1/users/:{id}:
+ *   get:
+ *     summary: Get Specific User Based On User Id.
+ *     responses:
+ *       200:
+ *         description: Successfully!!
+ *       500:
+ *         description: Something Wrong Plz Try Again!!
+*/
 
-        const newUser = new User({
-            ...req.body,
-            password: hash
-        });
+router.get("/:id", verifyToken, getUser);
 
-        newUser.save();
+/**
+ * @swagger
+ * /api/v1/users/:
+ *   get:
+ *     summary: Get All Uers.
+ *     responses:
+ *       200:
+ *         description: Successfully!!
+ *       500:
+ *         description: Something Wrong Plz Try Again!!
+*/
+router.get("/", verifyToken, getAllUsers);
 
-        res.json({
-            hasError: false,
-            status: 200,
-            message: "User Created Successfully!!"
-        });
-
-    } catch (error) {
-        next(error);
-    }
-};
-
-export const login = async (req, res, next) => {
-    try {
-        const user = await User.findOne({ username: req.body.username })
-
-        if (!user) {
-            return next(createError((500, "User Not Found!!")))
-        }
-
-        const isPasswordCorrect = bcrypt.compare(req.body.password, user.password);
-
-        if (!isPasswordCorrect) {
-            return next(createError(500, "Wrong Password And User Name!!"));
-        }
-
-        const token = jwt.sign({
-            id: user._id,
-            isAdmin: user.isAdmin
-        }, process.env.JWT)
-
-        const { password, isAdmin, ...otherDeatails } = user._doc;
-
-        const loginUserDetail = {
-            id: otherDeatails._id,
-            username: otherDeatails.username,
-            email: otherDeatails.email,
-            country: otherDeatails.country,
-            phone: otherDeatails.phone
-        }
-
-        res.cookie("Access-Token", token, {
-            httpOnly: true
-        });
-
-        res.cookie("User", user.username)
-
-        res.json({
-            hasError: false,
-            status: 200,
-            data: [{
-                loginUserDetail,
-                "token": token
-            }]
-        });
-    } catch (error) {
-        next(error)
-    }
-};
+export default router;
