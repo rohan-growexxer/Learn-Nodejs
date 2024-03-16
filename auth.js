@@ -8,6 +8,7 @@ import { verifyToken } from "../middlewares/verifyToken.js";
  * @swagger
  * /api/v1/users/:{id}:
  *   put:
+ *     tags: ["Users"]
  *     summary: Update user.
  *     requestBody:
  *       required: true
@@ -18,7 +19,7 @@ import { verifyToken } from "../middlewares/verifyToken.js";
  *               properties:
  *                 id:
  *                   type: number
- *                   example: 1
+ *                   example: 0
  *     responses:
  *       200:
  *         description: Update Successfully!!
@@ -31,6 +32,7 @@ router.put("/:id", verifyToken, updateUser);
  * @swagger
  * /api/v1/users/:{id}:
  *   delete:
+ *     tags: ["Users"]
  *     summary: Delete user.
  *     requestBody:
  *       required: true
@@ -41,7 +43,7 @@ router.put("/:id", verifyToken, updateUser);
  *               properties:
  *                 id:
  *                   type: number
- *                   example: 1
+ *                   example: 0
  *     responses:
  *       200:
  *         description: Deleted Successfully!!
@@ -54,7 +56,18 @@ router.delete("/:id", verifyToken, deleteUser);
  * @swagger
  * /api/v1/users/:{id}:
  *   get:
+ *     tags: ["Users"]
  *     summary: Get Specific User Based On User Id.
+ *     requestBody:
+ *       required: true
+ *     content:
+ *         application/json:
+ *           schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: number
+ *                   example: 0
  *     responses:
  *       200:
  *         description: Successfully!!
@@ -68,7 +81,10 @@ router.get("/:id", verifyToken, getUser);
  * @swagger
  * /api/v1/users/:
  *   get:
+ *     tags: ["Users"]
+ *     security: [ { "Bearer": [] } ]
  *     summary: Get All Uers.
+ *     produces: application/json
  *     responses:
  *       200:
  *         description: Successfully!!

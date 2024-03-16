@@ -7,7 +7,9 @@ import { register, login } from '../controller/auth.js';
  * @swagger
  * /api/v1/auth/register:
  *   post:
+ *     tags: ["Authentication"]
  *     summary: Register user.
+ *     produces: application/json
  *     requestBody:
  *       required: true
  *       content:
@@ -36,7 +38,9 @@ router.post("/register", register);
  * @swagger
  * /api/v1/auth/login:
  *   post:
+ *     tags: ["Authentication"]
  *     summary: Login user.
+ *     produces: application/json
  *     requestBody:
  *       required: true
  *       content:
