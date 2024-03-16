@@ -20,12 +20,18 @@ import { register, login } from '../controller/auth.js';
  *                 username:
  *                   type: string
  *                   example: "Abc"
- *                   email:
- *                     type: string
- *                     example: "abc@gmail.com"
- *                     password:
- *                       type: string
- *                       example: "abc@123#"
+ *                 email:
+ *                   type: string
+ *                   example: "Abc@gmail.com"
+ *                 password:
+ *                   type: string
+ *                   example: "ABC@123#"
+ *                 country:
+ *                   type: string
+ *                   example: "India"
+ *                 phone:
+ *                   type: number
+ *                   exmaple: 0
  *     responses:
  *       200:
  *         description: User Created Successfully!!
@@ -51,9 +57,9 @@ router.post("/register", register);
  *                 username:
  *                   type: string
  *                   example: "Abc"
- *                   password:
- *                       type: string
- *                       example: "abc@123#"
+ *                 password:
+ *                    type: string
+ *                    example: "abc@123#"
  *     responses:
  *       200:
  *         description: User Created Successfully!!
