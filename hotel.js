@@ -6,10 +6,10 @@ import { verifyToken } from "../middlewares/verifyToken.js";
 
 /**
  * @swagger
- * /api/v1/hotel/createHote:
+ * /api/v1/hotel/createHotel:
  *   post:
  *     tags: ["Hotels"]
- *     summary: Register user.
+ *     summary: Create Hotels.
  *     produces: application/json
  *     requestBody:
  *       required: true
