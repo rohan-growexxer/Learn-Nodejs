@@ -56,7 +56,7 @@ const swaggerSpec = swaggerJSDoc(options);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.get('/docs.json', (req, res) => {
     res.setHeader('Content-Type', 'application/json')
-    res.send(swaggerSpec)
+    res.send(swaggerSpec);
 })
 
 //Middlewares
